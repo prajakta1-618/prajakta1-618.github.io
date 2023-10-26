@@ -1,43 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<title>Prajakta</title>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <head>
+      <style>
+      body,
+      html {
+          height: 100%;
+      }
+      .bg {
+          background-image: url("./images/bg_capri.png");
+          height: 100%;
+          width: 100%;
+          background-position: center;
+          background-repeat: no-repeat;
+          background-size: cover;
+          filter: alpha(opacity=60);
+      }
+      body {
+          margin: 0;
+          padding: 0;
+          display: flex;
+          justify-content: center;
+      }
+      .container {
+          text-align: center;
+          margin-top: 10%;
+      }
+      .home {
+          font-family: 'Urbanist', sans-serif;
+          font-size: 100px;
+          font-weight: bolder;
+          color: rgb(77, 97, 77);
+      }
+      .home-content {
+          font-family: 'Urbanist', sans-serif;
+          font-size: 20px;
+          max-width: 800px;
+          margin: 0 auto;
+      }
+      </style>
+        <title>Prajakta</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="style.css">
+    </head>
 
-<style>
+    <body>
+      <div class="bg">
+        <div class=".centered-content">
+        <div class="container-nav">
+        <div class="topnav">
+          <a class="active" href="index.html">Home</a>
+          <a href="about.html">About Me</a>
+          <a href="research.html">Research</a>
+          <a href="https://drive.google.com/file/d/1FulUBm_5NsBKXGnXIDt-_z5tsdBiUFEJ">CV</a>
+          <a href="academics.html">Academics</a>
+          <a href="extramural.html">Extracurricular</a>
+        </div> 
+        </div> 
+        <div class="container">
+            <div class="home">Prajakta Mane</div><br><br>
+            <div class="home-content">Hi! I'm a BS-MS student at Indian Institute of Science Education 
+                  and Research (IISER), Mohali, India, I'm currently pursuing my master's thesis at Inter-University Centre for Astronomy and Astrophysics (IUCAA), Pune, India. In my thesis work, 
+                  I study gravitional strong lensing of Type Ia supernovae, and develop computational tools to detect such systems in the upcoming LSST survey by the Vera Rubin Observatory. <br><br>
+                  <br><br>This site is a work under progress... <br><br>
+                  <!-- <a href = 'home/firstsite.html'>My very first site that I made to just test out my newly-earned knowledge of html and css!</a><br> -->
 
-* {
-  background:  #ffffe6;
-}
+          </div>
+        </div>
+        </div>
+        </div>
+ 
+    </body>
 
-@media only screen and (max-width: 600px) {
-  .main {
-    margin-right: 15px;
-    margin-left: 15px;
-    margin-top: 40px;
-  }
 
-  .header h1 {
-  font-size: 40px;
-  }
-
-  p {
-    font-size: 14px;
-  }
-}
-</style>
-</head>
-<body>
-
-<div>
-  <h1>Prajakta Mane</h1>
-  <p>A fifth year integrated Masters' student at Indian Institute of Science Education and Research</p>
-  This site is a work under progress...
-</div>
-
-<div> 
-    <a href = 'home/firstsite.html'>My very first site that I made to just test out my newly-earned knowledge of html and css!</a><br>
-    <a href = 'home/academic/BoPTermpaper.html'>A term paper I wrote for my 8th sem evolutionary biology course</a><br>
-    <a href = 'extramural.html'>A very irregularly maintained blog of my interests outside academics</a><br>
-</div>
+</html>

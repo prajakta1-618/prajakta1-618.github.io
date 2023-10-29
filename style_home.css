@@ -1,0 +1,101 @@
+* {
+    background-color: #eaebe3;
+  }
+body,
+html {
+    height: 100%;
+  }
+.bg {
+    height: 100%;
+    width: 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    filter: alpha(opacity=60);
+  }
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+  }
+.container {
+    text-align: justify;
+    margin-top: 2%;
+    margin-right: 20%;
+    margin-left: 20%;
+    margin-bottom: 60px;
+  }
+.home {
+    font-family: 'Urbanist', sans-serif;
+    font-size: 50px;
+    font-weight: bolder;
+    color: rgb(77, 97, 77);
+  }
+.home-subtitle {
+    font-family: 'Urbanist', sans-serif;
+    font-size: 30px;
+    font-weight: bolder;
+    color: rgb(77, 97, 77);
+}
+.home-content {
+    font-family: 'Urbanist', sans-serif;
+    font-size: 16px;
+    max-width: 1200px;
+}
+.container-nav {
+    text-align: center;
+    padding-top: 3%;
+}
+.centered-content {
+    padding: 2000px;
+}
+topnav {
+    overflow: hidden;
+    background-color: #333;
+    margin-top: -200px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 999;
+  }
+  .topnav a {
+    text-align: center;
+    float: center;
+    color: black;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 20px;
+  }
+  .topnav a:hover {
+    background-color: #ddd;
+    color: rgb(77, 97, 77);
+    cursor: pointer;
+  }
+  .topnav a.active {
+    background-color: rgb(77, 97, 77);
+    color: white;
+  }
+
+  @media only screen and (max-width: 600px) {
+    .container {
+        margin-top: 10%;
+        margin-right: 10%;
+        margin-left: 10%;
+        margin-bottom: 60px;
+      }
+    .home {
+        font-size: 30px;
+      }
+    .home-subtitle {
+        font-size: 15px;
+    }
+    .home-content {
+        font-size: 12px;
+        max-width: 1200px;
+    }
+}
+

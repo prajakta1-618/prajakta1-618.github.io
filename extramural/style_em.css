@@ -1,0 +1,32 @@
+* {
+    background:  #eaebe3;
+    }
+    .header {
+    padding: 2%;
+    text-align: justify;
+    margin-right: 40%;
+    }
+    .main {   
+        flex: 100%;
+        position: absolute;
+        text-align: justify;
+        margin-right: 20%;
+        margin-left: 4%;
+        margin-bottom: 60px;
+    }
+
+    @media only screen and (max-width: 600px) {
+        .header {
+            padding: 2%;
+            text-align: justify;
+            margin-right: 10%;
+            }
+        .main {   
+            flex: 100%;
+            position: absolute;
+            text-align: justify;
+            margin-right: 10%;
+            margin-left: 4%;
+            margin-bottom: 60px;
+            }
+    }

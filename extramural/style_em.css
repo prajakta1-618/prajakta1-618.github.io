@@ -1,32 +1,96 @@
 * {
-    background:  #eaebe3;
-    }
-    .header {
-    padding: 2%;
+    background-color: #eaebe3;
+    box-sizing: border-box;
+  }
+body,
+html {
+    height: 100%;
+  }
+.bg {
+    height: 100%;
+    width: 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    filter: alpha(opacity=60);
+  }
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+  }
+.container {
     text-align: justify;
-    margin-right: 40%;
-    }
-    .main {   
-        flex: 100%;
-        position: absolute;
-        text-align: justify;
-        margin-right: 20%;
-        margin-left: 4%;
+    margin-top: 2%;
+    margin-right: 20%;
+    margin-left: 20%;
+    margin-bottom: 60px;
+  }
+.home {
+    font-size: 50px;
+    font-weight: bolder;
+  }
+.home-subtitle {
+    font-size: 30px;
+    font-weight: bolder;
+}
+.home-content {
+    font-size: 16px;
+    max-width: 1200px;
+}
+.centered-content {
+    padding: 2000px;
+}
+
+.img {
+    text-align: center;
+}
+
+.photo {
+    padding: 10%;
+}
+
+/* Create two equal columns that floats next to each other */
+.column {
+    float: left;
+    width: 50%;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-bottom: 15px;
+}
+
+.column img {
+    margin-top: 12px;
+}
+
+/* Clear floats after the columns */
+    .row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+  @media only screen and (max-width: 600px) {
+    .container {
+        margin-top: 10%;
+        margin-right: 10%;
+        margin-left: 10%;
         margin-bottom: 60px;
+      }
+    .home {
+        font-size: 30px;
+      }
+    .home-subtitle {
+        font-size: 15px;
+    }
+    .home-content {
+        font-size: 12px;
+        max-width: 1200px;
     }
 
-    @media only screen and (max-width: 600px) {
-        .header {
-            padding: 2%;
-            text-align: justify;
-            margin-right: 10%;
-            }
-        .main {   
-            flex: 100%;
-            position: absolute;
-            text-align: justify;
-            margin-right: 10%;
-            margin-left: 4%;
-            margin-bottom: 60px;
-            }
+    h3 {
+        font-size: 12px;
+        max-width: 1200px;
     }
+}
+

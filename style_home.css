@@ -97,5 +97,11 @@ topnav {
         font-size: 12px;
         max-width: 80000px;
     }
+    .body {
+        margin-right: 15px;
+        margin-left: 15px;
+        margin-top: 40px;
+    }
+
 }
 

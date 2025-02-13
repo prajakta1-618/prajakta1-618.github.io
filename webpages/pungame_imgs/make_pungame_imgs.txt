@@ -1,0 +1,1 @@
+make pungame_imgs directory

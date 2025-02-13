@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- Credits:
+   - both the gifs are by Milk and Mocha comics, downloaded from https://tenor.com/search/milk-and-mocha-gifs 
+   - the fireworks animation is taken from the internet at https://github.com/gmpsankalpa/fireworks
+   - the 'no' button animation is inspired from mewtru at https://mewtru.com/valentine
+   - 'you are my boyfriend' song is (unethically?) downloaded from https://www.instagram.com/kimmddong/
+   - the code is generated primary by Claude AI with ChatGPT support to my really helpless questions 
+     like 'can you please clean this code to remove parts that i'm not actually using because my boyfriend 
+     will surely check this code and i want it to look clean pls?'
+   - conceptualisation is by yours truly. han? you're saying it's v freakin adorable? no?
+     oooh you're saying it's v freakin ADORABALL?? yeaaaaaaa, ikkkr. huhu, love you <3<3
+   - the other thing (if you find it) is taken (again, unethically?😭) from https://www.instagram.com/quinns_gifts/ btw :')
+    -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="apple-touch-icon" sizes="180x180" href="./img_fireworks/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="./img_fireworks/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="./img_fireworks/favicon-16x16.png">
+  <link rel="manifest" href="./img_fireworks/site.webmanifest">
+  <link rel="stylesheet" href="fireworks.css" />
+
+  <style>
+    body {
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background-color: black;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .custom-gif {
+      width: 400px;
+      height: auto;
+      margin: 0px;
+      object-fit: contain;
+    }
+    
+    .question {
+      font-size: 2em;
+      margin: 0px;
+      color: #ff4d6d;
+    }
+
+    .buttons {
+      margin: 20px;
+    }
+
+    button {
+      padding: 15px 30px;
+      margin: 10px;
+      font-size: 1.2em;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    #yesBtn {
+      background-color: #ff4d6d;
+      color: white;
+    }
+
+    #noBtn {
+      background-color: #cccccc;
+      color: black;
+    }
+
+    button:hover {
+      transform: scale(1.1);
+    }
+
+    #noBtn:hover {
+      animation: moveAway 0.5s;
+      animation-fill-mode: forwards;
+    }
+
+    @keyframes moveAway {
+      to {
+        transform: translateX(100px) translateY(-50px);
+      }
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .response {
+      font-size: 2em;
+      color: #ff4d6d;
+      margin: 20px;
+    }
+
+    .audio-button {
+      margin: 20px;
+      padding: 15px 30px;
+      font-size: 1.2em;
+      color: white;
+      background-color: #ff4d6d;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    .audio-button:hover {
+      transform: scale(1.1);
+    }
+
+    #coffeeLink {
+      display: block;
+      margin-top: 300px;
+      font-size: 0.8em;
+      color: #ff4d6d;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    #coffeeLink_empty {
+      display: block;
+      color: black;
+      margin-top: 350px;
+      text-decoration: none;
+    }
+
+    #coffeeLink:hover {
+      text-decoration: underline;
+    }
+
+    #failureContainer {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      color: #ff4d6d;
+      font-size: 1.5em;
+    }
+
+    .game-button {
+      margin: 20px;
+      padding: 15px 30px;
+      font-size: 1.2em;
+      color: white;
+      background-color: #ff4d6d;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 0.3s;
+    }
+
+    .game-button:hover {
+      transform: scale(1.1);
+      text-decoration: underline;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div id="animationContainer">
+    <img src="pleaaaaase.gif" class="custom-gif" alt="Valentine GIF">
+  </div>
+
+  <div id="successContainer" style="display: none;">
+    <div class="firework"></div>
+    <div class="firework"></div>
+    <div class="firework"></div>
+    <img src="yessssss.gif" class="custom-gif" alt="Success GIF">
+    <div id="acceptedMessage" class="response hidden">He said yessssss!</div>
+    <button id="audioButton" class="audio-button">Play thisss</button>
+    <a href="buymeacoffee/prajaktamane.html" id="coffeeLink">Buy me a coffee:)</a>
+  </div>
+
+  <div id="failureContainer">
+    <p>phone pe haina? sach sach bata 💉 (upward facing knife emoji nahi mila hehe😅)</p>
+    <p><a href="iwontbeyourvalentine.html" class="game-button">aa jao</a></p>
+  </div>
+
+  <div class="question">bb, will you be my Valentine? 🌹</div>
+  <div class="buttons">
+    <button id="yesBtn" onclick="accepted()">Yes!  💖</button>
+    <button id="noBtn" onmouseover="moveButton()" onclick="rejected()">No 💔</button>
+    <a href="" id="coffeeLink_empty">_ </a>
+  </div>
+
+  <script>
+    function moveButton() {
+      const noBtn = document.getElementById('noBtn');
+      noBtn.style.position = 'absolute';
+      noBtn.style.left = Math.random() * (window.innerWidth - 100) + 'px';
+      noBtn.style.top = Math.random() * (window.innerHeight - 50) + 'px';
+    }
+
+    function accepted() {
+      document.querySelector('.buttons').style.display = 'none';
+      document.querySelector('.question').style.display = 'none';
+      document.getElementById('acceptedMessage').classList.remove('hidden');
+
+      const initialAnim = document.getElementById('animationContainer');
+      initialAnim.style.opacity = '0';
+      
+      setTimeout(() => {
+        initialAnim.style.display = 'none';
+        document.getElementById('successContainer').style.display = 'block';
+      }, 500);
+    }
+
+    function rejected() {
+      document.querySelector('.buttons').style.display = 'none';
+      document.querySelector('.question').style.display = 'none';
+      document.getElementById('animationContainer').style.opacity = '0';
+      
+      setTimeout(() => {
+        document.getElementById('animationContainer').style.display = 'none';
+        document.getElementById('failureContainer').style.display = 'flex';
+      }, 500);
+    }
+
+
+    const audio = new Audio('youaremysunshine.mp3');
+    let isPlaying = false;
+
+    document.getElementById('audioButton').addEventListener('click', function () {
+      if (!isPlaying) {
+        audio.play();
+        this.textContent = 'Pause';
+      } else {
+        audio.pause();
+        this.textContent = 'Play thisss';
+      }
+      isPlaying = !isPlaying;
+    });
+  </script>
+
+  <script src="fireworks.js"></script>
+</body>
+</html>

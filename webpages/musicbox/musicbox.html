@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Music Box for Mayuri <3</title>
+    <style>
+        .music-box {
+            width: 400px;
+            height: 300px;
+            background: #4a0404;
+            border-radius: 20px;
+            padding: 20px;
+            position: relative;
+            border: 15px solid #daa520;
+        }
+
+        .strips-base {
+            position: absolute;
+            width: 60px;
+            height: 155px;
+            background: linear-gradient(90deg, 
+                #A8A8A8 0%,
+                #C0C0C0 40%,
+                #D3D3D3 50%,
+                #C0C0C0 60%,
+                #A8A8A8 100%
+            );
+            left: 48px; 
+            top: 96px; 
+            border-radius: 2px;
+            box-shadow: 
+                2px 0 4px rgba(0,0,0,0.2),
+                inset -1px 0 2px rgba(255,255,255,0.7);
+        }
+
+        .metal-strips {
+            width: 180px;
+            height: 200px;
+            position: absolute;
+            left: 97px; 
+            top: 100px; 
+        }
+
+        .strip {
+            width: 170px;
+            height: 7px;
+            background: linear-gradient(90deg, 
+                #c0c0c0 0%,
+                #f5f5f5 70%,
+                #e0e0e0 100%
+            );
+            position: absolute;
+            transform-origin: left center; /* This makes it pivot from the left edge */
+            transition: all 0.1s ease-out; /* Smooth transition for the plucking effect */
+            border-radius: 0 2px 2px 0;
+            box-shadow: 
+                0 1px 2px rgba(0,0,0,0.2),
+                inset 0 1px 1px rgba(255,255,255,0.7);
+        }
+
+        .strip.plucked {
+            transform: rotate(-3deg); /* Negative for upward movement */
+        }
+
+        .cylinder {
+            width: 100px;
+            height: 150px;
+            position: absolute;
+            right: 70px;
+            top: 100px;
+            overflow: hidden;
+            perspective: 1000px;
+            transform-style: preserve-3d;
+        }
+
+        .gradient-overlay {
+            position: absolute;
+            width: 600px;
+            height: 100%;
+            background: repeating-linear-gradient(
+                90deg,
+                #8B0000 0%,   
+                #8B0000 3%,
+                #FF4500 3%,   
+                #FF4500 8%,
+                #FF6B00 8%,   
+                #FF6B00 15%,
+                #FF8C00 15%, 
+                #FF8C00 18%,
+                #FF6B00 18%,  
+                #FF6B00 21%,
+                #FF4500 21%,  
+                #FF4500 24%,
+                #8B0000 24%   
+            );
+            background-size: 25% 100%;
+            left: 0;
+            top: 0;
+            box-shadow: 
+                inset -15px 0 20px -5px rgba(0,0,0,0.3),
+                inset 15px 0 20px -5px rgba(0,0,0,0.3),
+                inset 0 3px 10px -1px rgba(255,255,255,0.4),
+                inset 0 -3px 10px -1px rgba(0,0,0,0.4);
+            transform: rotateY(5deg);
+            transition: transform 0.3s ease-out;
+        }
+
+
+        .pins-container {
+            position: absolute;
+            width: 600px;
+            height: 100%;
+            left: 0;
+            top: 0;
+            transition: transform 0.3s ease-out;
+        }
+
+        .pin {
+            width: 12px;
+            height: 6px;
+            position: absolute;
+            background: linear-gradient(90deg, 
+                #ffd700 0%,
+                #ffa500 50%,
+                #ff8c00 100%
+            );
+            box-shadow: 
+                2px 2px 4px rgba(0, 0, 0, 0.4),
+                -1px -1px 2px rgba(255, 255, 255, 0.3),
+                inset -2px 0 3px rgba(0, 0, 0, 0.2);
+            border-radius: 2px;
+            transform: translateZ(1px);
+        }
+
+        .pin::after {
+            content: '';
+            position: absolute;
+            right: -1px;
+            top: 0;
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                #ff8c00,
+                #ffd700
+            );
+            border-radius: 0 2px 2px 0;
+            box-shadow: 1px 0 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .handle {
+            position: absolute;
+            right: 5px;
+            top: 70px;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            transform: rotateX(10deg);
+        }
+
+        .crank-assembly {
+            position: relative;
+            transform-origin: left center;
+            transform-style: preserve-3d;
+        }
+
+        .crank-arm-main {
+            width: 60px;
+            height: 8px;
+            background: linear-gradient(to bottom, #C0C0C0, #A8A8A8);
+            position: absolute;
+            left: -100;
+            top: 0;
+            transform-origin: left center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .crank-arm-vertical {
+            width: 8px;
+            height: 47px;
+            background: linear-gradient(to right, #C0C0C0, #A8A8A8);
+            position: absolute;
+            left: 60px;
+            top: -39px;
+            box-shadow: 2px 0 4px rgba(0,0,0,0.2);
+        }
+
+        .crank-arm-top {
+            width: 30px;
+            height: 8px;
+            background: linear-gradient(to bottom, #C0C0C0, #A8A8A8);
+            position: absolute;
+            left: 60px;
+            top: -45px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .crank-grip {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #8B0000, #800000);
+            position: absolute;
+            left: 85px;
+            top: -55px;
+            border-radius: 3px;
+            box-shadow: 
+                2px 2px 4px rgba(0,0,0,0.3),
+                inset 1px 1px 2px rgba(255,255,255,0.2);
+        }
+
+        @keyframes rotateCrank {
+            0% {
+                transform: rotateZ(0deg) rotateX(0deg);
+            }
+            25% {
+                transform: rotateZ(90deg) rotateX(5deg);
+            }
+            50% {
+                transform: rotateZ(180deg) rotateX(0deg);
+            }
+            75% {
+                transform: rotateZ(270deg) rotateX(-5deg);
+            }
+            100% {
+                transform: rotateZ(360deg) rotateX(0deg);
+            }
+        }
+
+        .crank-assembly.playing {
+            animation: rotateCrank 2s cubic-bezier(0.4, 0.0, 0.6, 1) infinite;
+            transform-origin: 40% center;
+        }
+
+        @keyframes crankShadow {
+            0%, 100% {
+                box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            }
+            50% {
+                box-shadow: -2px 2px 4px rgba(0,0,0,0.3);
+            }
+        }
+
+.crank-grip.playing {
+    animation: crankShadow 2s linear infinite;
+}
+
+        .logo {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            background: #ff8c00;
+            padding: 5px 10px;
+            border-radius: 10px;
+            color: white;
+            font-family: cursive;
+        }
+
+        #playButton {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            background: #daa520;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        @keyframes moveRight {
+            from { 
+                transform: translateX(-200px);
+            }
+            to { 
+                transform: translateX(0);
+            }
+        }
+
+        .lyrics-container {
+            width: 100%;
+            padding: 10px;
+            background: #f8f8f8;
+            color: #333;
+            border: 2px solid #daa520;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+            font-family: Arial, sans-serif;
+        }
+
+        .lyrics-container h2 {
+            margin: 0;
+            font-size: 1.2em;
+            color: #8B0000;
+        }
+
+        .lyrics-container p {
+            font-size: 1em;
+            margin-top: 10px;
+        }
+
+        #toggleLyricsButton {
+            position: absolute;
+            bottom: 64.8%;
+            left: 16%;
+            padding: 10px 15px;
+            background: #daa520;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+    </style>
+</head>
+<body>
+    <div class="music-box">
+        <div class="logo">Mayuri's Music Box</div>
+        <div class="strips-base"></div>
+        <div class="metal-strips" id="strips"></div>
+        <div class="cylinder">
+            <div class="gradient-overlay" id="gradient"></div>
+            <div class="pins-container" id="pins-container"></div>
+        </div>
+        <div class="handle">
+            <div class="crank-assembly">
+                <div class="crank-arm-main"></div>
+                <div class="crank-arm-vertical"></div>
+                <div class="crank-arm-top"></div>
+                <div class="crank-grip"></div>
+            </div>
+        </div>
+        <button id="playButton">Play Music</button>
+        <audio id="musicPlayer" src="song2.mp3"></audio>
+    </div>
+
+
+    <button id="toggleLyricsButton">Click this</button>
+
+    <div class="lyrics-container" id="lyricsContainer">
+        <h2>Lyrics:</h2>
+        <p id="lyricsText">
+            I love you bestie<br>
+            My dear best friend<br>
+            You make my dayyy<br>
+            Shine with joooy <br>
+            I can not show it all<br>
+            With just 'I love you'<br>
+            Stay with me<br>
+            Always<br>
+            'til forever        
+        </p>
+    </div>
+
+
+    <script>
+        const gradient = document.getElementById('gradient');
+        const pinsContainer = document.getElementById('pins-container');
+        const stripsContainer = document.getElementById('strips');
+        const musicPlayer = document.getElementById('musicPlayer');
+        const playButton = document.getElementById('playButton');
+        const crankAssembly = document.querySelector('.crank-assembly');
+        const lyricsContainer = document.getElementById('lyricsContainer');
+        const toggleLyricsButton = document.getElementById('toggleLyricsButton');
+
+        let isPlaying = false;
+        let animationInterval = null;
+
+        for (let i = 0; i < 15; i++) {
+            const strip = document.createElement('div');
+            strip.className = 'strip';
+            strip.style.top = `${i * 10}px`;
+            stripsContainer.appendChild(strip);
+        }
+
+        function createRandomPins() {
+            pinsContainer.innerHTML = '';
+            
+            for (let section = 0; section < 6; section++) {
+                const numPins = Math.floor(Math.random() * 7) + 5;
+                
+                for (let i = 0; i < numPins; i++) {
+                    const pin = document.createElement('div');
+                    pin.className = 'pin';
+                    
+                    const x = Math.random() * 80 + (section * 100);
+                    const y = Math.random() * 130 + 10;
+                    
+                    pin.style.left = `${x}px`;
+                    pin.style.top = `${y}px`;
+                    
+                    const width = 10 + Math.random() * 4;
+                    pin.style.width = `${width}px`;
+                    
+                    pinsContainer.appendChild(pin);
+                }
+            }
+        }
+
+        function resetStrips() {
+            document.querySelectorAll('.strip').forEach(strip => {
+                strip.style.transform = 'translateY(0)';
+            });
+        }
+
+        function updateStrips() {
+            const pins = document.querySelectorAll('.pin');
+            const strips = document.querySelectorAll('.strip');
+            
+            strips.forEach(strip => {
+                strip.style.transform = 'translateY(0)';
+            });
+            
+            pins.forEach(pin => {
+                const pinRect = pin.getBoundingClientRect();
+                const pinX = pinRect.left;
+                const pinY = pinRect.top;
+                
+                const activeZoneStart = 280;
+                const activeZoneEnd = 320;
+                
+                if (pinX >= activeZoneStart && pinX <= activeZoneEnd) {
+                    strips.forEach((strip, index) => {
+                        const stripRect = strip.getBoundingClientRect();
+                        const stripY = stripRect.top;
+                        
+                        if (Math.abs(pinY - stripY) < 10) {
+                            strip.style.transform = 'translateY(3px)';
+                            strip.style.transition = 'transform 0.1s ease-in-out';
+                            
+                            setTimeout(() => {
+                                strip.style.transform = 'translateY(0)';
+                            }, 100);
+                        }
+                    });
+                }
+            });
+        }
+
+        function startAnimation() {
+            gradient.style.animation = 'moveRight 8s linear infinite';
+            pinsContainer.style.animation = 'moveRight 8s linear infinite';
+            // crankAssembly.classList.add('playing');
+            animationInterval = setInterval(updateStrips, 50);
+        }
+
+        function stopAnimation() {
+            gradient.style.animation = 'none';
+            pinsContainer.style.animation = 'none';
+            // crankAssembly.classList.remove('playing');
+            if (animationInterval) {
+                clearInterval(animationInterval);
+                animationInterval = null;
+            }
+            resetStrips();
+        }
+
+        playButton.addEventListener('click', () => {
+            if (!isPlaying) {
+                isPlaying = true;
+                playButton.textContent = 'Pause Music';
+                startAnimation();
+                musicPlayer.play();
+            } else {
+                isPlaying = false;
+                playButton.textContent = 'Play Music';
+                stopAnimation();
+                musicPlayer.pause();
+            }
+        });
+
+        toggleLyricsButton.addEventListener('click', () => {
+            if (lyricsContainer.style.display === 'none') {
+                lyricsContainer.style.display = 'block';
+                toggleLyricsButton.textContent = 'Hide Lyrics';
+            } else {
+                lyricsContainer.style.display = 'none';
+                toggleLyricsButton.textContent = 'Show Lyrics';
+            }
+        });
+
+        createRandomPins();
+        stopAnimation();  
+    </script>
+</body>
+</html>

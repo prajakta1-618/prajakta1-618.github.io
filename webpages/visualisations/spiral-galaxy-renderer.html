@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Spiral Galaxy Renderer</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #07090f; font-family: sans-serif; color: #ccc; padding: 16px; }
+  .tabs { display: flex; gap: 4px; margin-bottom: 14px; }
+  .tab-btn {
+    padding: 6px 18px; font-size: 12px; cursor: pointer; border-radius: 4px;
+    border: 1px solid #333; background: transparent; color: #888;
+    transition: background 0.15s, color 0.15s;
+  }
+  .tab-btn.active { background: #1a2040; color: #aaccff; border-color: #3355aa; }
+  .tab-btn:hover:not(.active) { background: #111520; color: #bbb; }
+  h2 { font-size: 15px; font-weight: 500; color: #eee; margin-bottom: 4px; }
+  p.sub { font-size: 12px; color: #888; margin-bottom: 12px; line-height: 1.5; max-width: 680px; }
+  canvas { display: block; border-radius: 6px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .controls {
+    display: flex; gap: 16px; align-items: center; flex-wrap: wrap;
+    padding: 10px 0; font-size: 13px;
+  }
+  .ctrl-group { display: flex; align-items: center; gap: 8px; }
+  label { font-size: 12px; color: #999; white-space: nowrap; }
+  input[type=range] { width: 100px; accent-color: #7799ff; cursor: pointer; }
+  .val { min-width: 42px; font-size: 12px; font-weight: 500; color: #eee; }
+  .arm-btn {
+    padding: 5px 12px; font-size: 11px; cursor: pointer; border-radius: 4px;
+    border: 1px solid #334; background: transparent; color: #888;
+    transition: background 0.15s, color 0.15s;
+  }
+  .arm-btn.active { background: #1a2a1a; color: #66ee88; border-color: #3a7a3a; }
+  .arm-btn:hover:not(.active) { background: #111520; color: #bbb; }
+</style>
+</head>
+<body>
+
+<div class="tabs">
+  <button class="tab-btn active" data-tab="0">① Orbit geometry</button>
+  <button class="tab-btn"        data-tab="1">② Stars + nebulae</button>
+  <button class="tab-btn"        data-tab="2">③ Galaxy rotation</button>
+</div>
+
+<!-- PANEL 1 — ORBIT GEOMETRY -->
+<div class="panel active" id="panel-0">
+  <h2>Orbit Geometry</h2>
+  <p class="sub">Spiral galaxies rotate, and the angular velocity of rotation decreases with radius. Due to this differential rotation, the arms of spiral 
+    galaxies would become more and more tightly wound and become indistinguishable from the rest of the galaxy after only a few orbits (the winding problem). 
+    Lin and Shu proposed the density wave model to solve this problem by proposing that the arms are not fixed matter but a spiral-shaped pattern of higher 
+    density that stars move through on their orbits. As the galaxy, stars, gas, dust, and other components of the galaxy move through the density wave, 
+    the density of the materials increase in the middle of it, while the wave itself does not move a significant amount in comparison to the material.
+    
+    Now the easiest way to model these spiral arms is by using elliptical orbits that are tilted slightly as their radii grow. 
+    This is a huge simplification of the orbits, but it gets the visual shape pretty much right. In the following diagram, each purple orbit is one star's 
+    elliptical orbit. We tilt each orbit progressively to make the spiral arms emerge. </p>
+  <canvas id="c1" width="1360" height="920" style="width:680px;height:460px;"></canvas>
+  <div class="controls">
+    <div class="ctrl-group">
+      <label>Tilt offset</label>
+      <input type="range" id="tilt" min="0" max="0.06" step="0.001" value="0.019">
+      <span class="val" id="tilt-val">0.019</span>
+    </div>
+    <div class="ctrl-group">
+      <label>Orbits</label>
+      <input type="range" id="norb" min="10" max="120" step="1" value="60">
+      <span class="val" id="norb-val">60</span>
+    </div>
+    <div class="ctrl-group">
+      <label>Peak ecc.</label>
+      <input type="range" id="ecc" min="0.1" max="0.98" step="0.01" value="0.72">
+      <span class="val" id="ecc-val">0.72</span>
+    </div>
+  </div>
+</div>
+
+<!-- PANEL 2 — STARS-->
+<div class="panel" id="panel-1">
+  <h2>Add Stars!</h2>
+  <p class="sub">
+    We now add material into these orbits. White dots below show individual stars sampled from the de Vaucouleurs bulge surface brightness profile and
+    Freeman disk brightness profile. The bulge is more centrally concentrated and has a steeper brightness drop-off, while the disk is more extended 
+    with a shallower brightness gradient.
+    Nebulous blobs are drawn with additive blending — they represent unresolved stellar populations and diffuse emission. 
+    These blobs accumulate brightness in dense arm regions, revealing the spiral structure as a continuous glow.
+  </p>
+  <canvas id="c2" width="1360" height="920" style="width:680px;height:460px;"></canvas>
+  <div class="controls">
+    <div class="ctrl-group">
+      <label>Stars</label>
+      <input type="range" id="nstars" min="2000" max="60000" step="1000" value="20000">
+      <span class="val" id="nstars-val">20000</span>
+    </div>
+    <div class="ctrl-group">
+      <label>Nebulous star background</label>
+      <input type="range" id="nneb" min="0" max="5000" step="100" value="1000">
+      <span class="val" id="nneb-val">1000</span>
+    </div>
+    <div class="ctrl-group">
+      <label>Tilt offset</label>
+      <input type="range" id="tilt2" min="0" max="0.06" step="0.001" value="0.019">
+      <span class="val" id="tilt2-val">0.019</span>
+    </div>
+    <div class="ctrl-group">
+      <label>Peak ecc.</label>
+      <input type="range" id="ecc2" min="0.1" max="0.98" step="0.01" value="0.72">
+      <span class="val" id="ecc2-val">0.72</span>
+    </div>
+  </div>
+</div>
+
+<!-- PANEL 3 — GALAXY ROTATION -->
+<div class="panel" id="panel-2">
+  <h2>Make it rotate!</h2>
+  <p class="sub">
+    After assembling the galaxy, we now make it rotate. Each star orbits at its own angular velocity &omega;(r) globally following the flat galaxy rotation curve
+    that arises because of dark matter.
+    Differential rotation would destroy material arms in just a couple of rotations, but the density-wave
+    arms persist because they are a matter density perturbation wave, not fixed matter.
+  </p>
+  <canvas id="c3" width="1360" height="920" style="width:680px;height:460px;"></canvas>
+  <div class="controls">
+    <div class="ctrl-group">
+      <label>Stars</label>
+      <input type="range" id="nstars3" min="2000" max="50000" step="1000" value="20000">
+      <span class="val" id="nstars3-val">20000</span>
+    </div>
+    <div class="ctrl-group">
+      <label>Nebulous star background</label>
+      <input type="range" id="nneb3" min="0" max="5000" step="100" value="1000">
+      <span class="val" id="nneb3-val">1000</span>
+    </div>
+    <div class="ctrl-group">
+      <label>Speed</label>
+      <input type="range" id="speed" min="0.1" max="5.0" step="0.1" value="1.0">
+      <span class="val" id="speed-val">1.0×</span>
+    </div>
+    <div class="ctrl-group">
+      <label>Tilt offset</label>
+      <input type="range" id="tilt3" min="0" max="0.06" step="0.001" value="0.019">
+      <span class="val" id="tilt3-val">0.019</span>
+    </div>
+    <div class="ctrl-group">
+      <label>Peak ecc.</label>
+      <input type="range" id="ecc3" min="0.1" max="0.98" step="0.01" value="0.72">
+      <span class="val" id="ecc3-val">0.72</span>
+    </div>
+  </div>
+  <div class="controls" style="padding-top:0; gap:24px;">
+    <div class="ctrl-group">
+      <label style="margin-right:2px;">Arm type</label>
+      <button class="arm-btn active" id="btnTrailing">Trailing (more common)</button>
+      <button class="arm-btn"        id="btnLeading" >Leading (rare)</button>
+    </div>
+    <div class="ctrl-group">
+      <input type="checkbox" id="pauseAnim" style="cursor:pointer;accent-color:#7799ff;">
+      <label for="pauseAnim" style="cursor:pointer;">Pause</label>
+    </div>
+  </div>
+  <p class="sub" id="armDesc" style="margin-top:6px; padding:6px 10px; border-radius:4px;
+     background:rgba(0,180,100,0.08); border-left:2px solid #44cc88; max-width:680px;">
+    <b style="color:#44cc88">Trailing arms</b> — arms curve away from the rotation direction.
+    A large majority of observed spiral galaxies have trailing arms. They are stable because the Coriolis force
+    damps any perturbation that would make them lead.
+  </p>
+</div>
+
+<script>
+
+
+//  CONSTANTS
+const W = 680, H = 460;
+const DPR = window.devicePixelRatio || 1;
+const R_CORE   = 0.40;
+const R_GALAXY = 0.90;
+const R_HALO   = 1.10;
+const R_D_FIXED = 0.25;  // Freeman scale length: 50% brightness drop at r = 0.25*ln2 ≈ 0.173
+
+//  CANVAS SETUP
+function setupCanvas(id) {
+  const c = document.getElementById(id);
+  c.width  = W * DPR; c.height = H * DPR;
+  c.style.width = W + 'px'; c.style.height = H + 'px';
+  const ctx = c.getContext('2d');
+  ctx.scale(DPR, DPR);
+  return ctx;
+}
+const ctx1 = setupCanvas('c1');
+const ctx2 = setupCanvas('c2');
+const ctx3 = setupCanvas('c3');
+
+//  TAB SWITCHING
+function switchTab(i) {
+  stopRotation();
+  document.querySelectorAll('.panel').forEach((p, j) => p.classList.toggle('active', j === i));
+  document.querySelectorAll('.tab-btn').forEach((b, j) => b.classList.toggle('active', j === i));
+  if (i === 1) drawStars();
+  if (i === 2) startRotation();
+}
+
+//  PHYSICS
+function eccentricity(a, peakEcc) {
+  if (a < R_CORE)   return (a / R_CORE) * peakEcc;
+  if (a < R_GALAXY) return peakEcc;
+  if (a < R_HALO)   return peakEcc * (1 - (a - R_GALAXY) / (R_HALO - R_GALAXY));
+  return 0;
+}
+
+function orbitXY(a, phi, peakEcc, tiltPerUnit, scale, cx, cy) {
+  const ecc   = eccentricity(a, peakEcc);
+  const b     = a * (1 - ecc);
+  const theta = a * tiltPerUnit * (W / 2);
+  const ex = a * Math.cos(phi), ey = b * Math.sin(phi);
+  return {
+    x: cx + (ex * Math.cos(theta) - ey * Math.sin(theta)) * scale,
+    y: cy + (ex * Math.sin(theta) + ey * Math.cos(theta)) * scale,
+  };
+}
+
+function dashedCircle(ctx, cx, cy, r, color, dash, lw) {
+  ctx.save();
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+  ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.setLineDash(dash);
+  ctx.stroke(); ctx.setLineDash([]);
+  ctx.restore();
+}
+
+//  SURFACE BRIGHTNESS
+function I_bulge(r) { return Math.exp(-7.67 * Math.pow(r / R_CORE, 0.25)); }
+function I_disk(r, R_D) { return Math.exp(-r / R_D); }
+function brightness(r, R_D) {
+  if (r <= 0) return 1;
+  if (r < R_CORE) return I_bulge(r);
+  return (I_bulge(R_CORE) / I_disk(R_CORE, R_D)) * I_disk(r, R_D);
+}
+
+function makePRNG(seed) {
+  let s = seed >>> 0;
+  return () => {
+    s += 0x6d2b79f5;
+    let t = Math.imul(s ^ (s >>> 15), s | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function sampleRadius(R_D, rng) {
+  for (let i = 0; i < 300; i++) {
+    const r = R_HALO * rng();
+    if (rng() < brightness(r, R_D)) return r;
+  }
+  return R_HALO * rng();
+}
+
+//  SHARED DRAW HELPERS
+
+// Draw nebula blob with additive blending (caller sets compositeOperation)
+function drawNebula(ctx, x, y, radius, alpha, r) {
+  radius = Math.max(0.5, radius);
+  const bulge = Math.max(0, 1 - r / (R_CORE * 3));
+  const rv = Math.round(160 + bulge * 80);
+  const gv = Math.round(175 + bulge * 55);
+  const bv = Math.round(255 - bulge * 80);
+  const a0 = Math.min(0.25, alpha * 0.5).toFixed(3);
+  const a1 = Math.min(0.08, alpha * 0.15).toFixed(3);
+  const grad = ctx.createRadialGradient(x, y, 0, x, y, radius);
+  grad.addColorStop(0,   `rgba(${rv},${gv},${bv},${a0})`);
+  grad.addColorStop(0.5, `rgba(${rv},${gv},${bv},${a1})`);
+  grad.addColorStop(1,   `rgba(${rv},${gv},${bv},0)`);
+  ctx.fillStyle = grad;
+  ctx.beginPath(); ctx.arc(x, y, radius, 0, 2 * Math.PI); ctx.fill();
+}
+
+//  PANEL 1 — ORBIT GEOMETRY
+function orbitColor(a) {
+  let r, g, b;
+  if (a < R_CORE) { r=230; g=180; b=60; }
+  else if (a < R_GALAXY) {
+    const f = (a-R_CORE)/(R_GALAXY-R_CORE);
+    r=Math.round(90+f*60); g=Math.round(100+f*40); b=Math.round(230-f*40);
+  } else { r=120; g=130; b=180; }
+  return `rgba(${r},${g},${b},${a < R_GALAXY ? 0.55 : 0.25})`;
+}
+
+function drawOrbits() {
+  const tiltPerUnit = parseFloat(document.getElementById('tilt').value);
+  const nOrbits     = parseInt(document.getElementById('norb').value);
+  const peakEcc     = parseFloat(document.getElementById('ecc').value);
+  const ctx = ctx1;
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#080c14'; ctx.fillRect(0,0,W,H);
+  const cx=W/2, cy=H/2, scale=Math.min(W,H)*0.43;
+
+  for (let i = 0; i < nOrbits; i++) {
+    const a     = R_HALO * ((i+0.5)/nOrbits);
+    const ecc   = eccentricity(a, peakEcc);
+    const b     = a*(1-ecc);
+    const theta = a*tiltPerUnit*(W/2);
+    ctx.strokeStyle = orbitColor(a);
+    ctx.lineWidth   = a < R_CORE ? 1.2 : 0.7;
+    ctx.beginPath();
+    for (let j=0; j<=200; j++) {
+      const phi=j/200*2*Math.PI, ex=a*Math.cos(phi), ey=b*Math.sin(phi);
+      const px=cx+(ex*Math.cos(theta)-ey*Math.sin(theta))*scale;
+      const py=cy+(ex*Math.sin(theta)+ey*Math.cos(theta))*scale;
+      j===0 ? ctx.moveTo(px,py) : ctx.lineTo(px,py);
+    }
+    ctx.closePath(); ctx.stroke();
+  }
+
+  ctx.beginPath(); ctx.arc(cx,cy,3,0,2*Math.PI);
+  ctx.fillStyle='#fff'; ctx.fill();
+  dashedCircle(ctx,cx,cy,R_CORE*scale,  'rgba(245,197,66,0.7)', [5,4],1.5);
+  dashedCircle(ctx,cx,cy,R_GALAXY*scale,'rgba(68,204,136,0.55)',[6,5],1.2);
+  ctx.font='11px sans-serif';
+  ctx.fillStyle='rgba(245,197,66,0.9)';
+  ctx.fillText('Bulge', cx+R_CORE*scale+6, cy-5);
+  ctx.fillStyle='rgba(68,204,136,0.85)';
+  ctx.fillText('Disk edge', cx+R_GALAXY*scale+6, cy-5);
+  if (tiltPerUnit < 0.002) {
+    ctx.font='bold 13px sans-serif'; ctx.fillStyle='rgba(255,200,80,0.9)';
+    ctx.textAlign='center';
+    ctx.fillText('Tilt = 0 → concentric ellipses, no spiral arms', cx, H-20);
+    ctx.textAlign='left';
+  }
+}
+
+//  PANEL 2 — STARS
+function drawStars() {
+  const ctx        = ctx2;
+  const nStars     = parseInt(document.getElementById('nstars').value);
+  const nNeb       = parseInt(document.getElementById('nneb').value);
+  const tiltPerUnit= parseFloat(document.getElementById('tilt2').value);
+  const peakEcc    = parseFloat(document.getElementById('ecc2').value);
+  const R_D        = R_D_FIXED;
+
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#04060d'; ctx.fillRect(0,0,W,H);
+  const cx=W/2, cy=H/2, scale=Math.min(W,H)*0.43;
+
+  // Nebula blobs — additive blending so arms accumulate brightness
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  const rngN = makePRNG(137);
+  for (let i = 0; i < nNeb; i++) {
+    const r    = sampleRadius(R_D, rngN);
+    const phi  = rngN()*2*Math.PI;
+    const {x,y} = orbitXY(r,phi,peakEcc,tiltPerUnit,scale,cx,cy);
+    const diskFrac = Math.max(0, Math.min(1, (r-R_CORE)/(R_GALAXY-R_CORE)));
+    const radius   = Math.max(0.5, 2 + rngN()*10*Math.sin(diskFrac*Math.PI));
+    const I        = brightness(r,R_D);
+    drawNebula(ctx,x,y,radius, 0.08+I*0.25, r);
+  }
+  ctx.restore();
+
+  // White-dot stars — plain 1×1 px showing raw density distribution
+  const rng = makePRNG(42);
+  for (let i = 0; i < nStars; i++) {
+    const r   = sampleRadius(R_D,rng);
+    const phi = rng()*2*Math.PI;
+    const {x,y} = orbitXY(r,phi,peakEcc,tiltPerUnit,scale,cx,cy);
+    const I = brightness(r,R_D);
+    ctx.fillStyle = `rgba(255,255,255,${(0.15+I*0.85).toFixed(2)})`;
+    ctx.fillRect(x,y,1,1);
+  }
+
+  dashedCircle(ctx,cx,cy,R_CORE*scale,  'rgba(245,197,66,0.5)', [5,4],1.2);
+  dashedCircle(ctx,cx,cy,R_GALAXY*scale,'rgba(68,204,136,0.45)',[6,5],1.0);
+  ctx.font='11px sans-serif';
+  ctx.fillStyle='rgba(245,197,66,0.75)';
+  ctx.fillText('Bulge',     cx+R_CORE*scale+6,   cy-5);
+  ctx.fillStyle='rgba(68,204,136,0.7)';
+  ctx.fillText('Disk edge', cx+R_GALAXY*scale+6, cy-5);
+}
+
+//  PANEL 3 — GALAXY ROTATION
+
+
+// &omaga(r): rigid-body core, then flat curve (dark matter)
+const OMEGA_0 = (2*Math.PI)/8000;   // one inner orbit = 8 s at speed 1×
+function angularVelocity(a) {
+  return a <= R_CORE ? OMEGA_0 : OMEGA_0*(R_CORE/a);
+}
+
+let rotRAF=null, rotLastMs=null, rotElapsed=0;
+let rotStars=null, rotNStars=0, rotParamsKey='';
+let armSign=-1;  // -1=trailing, +1=leading
+
+function buildRotStars(nStars, R_D, peakEcc, tiltPerUnit) {
+  const key=`${nStars},${R_D},${peakEcc},${tiltPerUnit}`;
+  if (key===rotParamsKey && rotStars) return;
+  rotParamsKey=key; rotNStars=nStars;
+  rotStars=new Float32Array(nStars*2);
+  const rng=makePRNG(42);
+  for (let i=0; i<nStars; i++) {
+    rotStars[i*2  ]=sampleRadius(R_D,rng);
+    rotStars[i*2+1]=rng()*2*Math.PI;
+  }
+}
+
+function drawRotFrame(nowMs) {
+  const paused      = document.getElementById('pauseAnim').checked;
+  const speedMult   = parseFloat(document.getElementById('speed').value);
+  const tiltPerUnit = parseFloat(document.getElementById('tilt3').value)*armSign;
+  const peakEcc     = parseFloat(document.getElementById('ecc3').value);
+  const nStars      = parseInt(document.getElementById('nstars3').value);
+  const nNeb        = parseInt(document.getElementById('nneb3').value);
+  const R_D         = R_D_FIXED;
+  const ctx         = ctx3;
+  const cx=W/2, cy=H/2, scale=Math.min(W,H)*0.43;
+
+  buildRotStars(nStars, R_D, peakEcc, Math.abs(tiltPerUnit));
+
+  const dt = rotLastMs===null ? 16 : Math.min(nowMs-rotLastMs,64);
+  rotLastMs=nowMs;
+  if (!paused) {
+    rotElapsed += dt*speedMult;
+    for (let i=0; i<rotNStars; i++) {
+      rotStars[i*2+1] += angularVelocity(rotStars[i*2])*dt*speedMult;
+    }
+  }
+
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#04060d'; ctx.fillRect(0,0,W,H);
+
+  // Nebulae — additive
+  ctx.save();
+  ctx.globalCompositeOperation='lighter';
+  const rngN=makePRNG(137);
+  for (let i=0; i<nNeb; i++) {
+    const r    = sampleRadius(R_D, rngN);
+    const phi0 = rngN()*2*Math.PI;
+    const {x,y} = orbitXY(r, phi0, peakEcc, tiltPerUnit, scale, cx, cy);
+    const diskFrac = Math.max(0,Math.min(1,(r-R_CORE)/(R_GALAXY-R_CORE)));
+    const radius   = Math.max(0.5, 2+rngN()*10*Math.sin(diskFrac*Math.PI));
+    const I        = brightness(r,R_D);
+    drawNebula(ctx,x,y,radius, 0.08+I*0.25, r);
+  }
+  ctx.restore();
+
+  // White-dot stars
+  for (let i=0; i<rotNStars; i++) {
+    const r   = rotStars[i*2];
+    const phi = rotStars[i*2+1];
+    const {x,y} = orbitXY(r,phi,peakEcc,tiltPerUnit,scale,cx,cy);
+    const I = brightness(r,R_D);
+    ctx.fillStyle=`rgba(255,255,255,${(0.15+I*0.85).toFixed(2)})`;
+    ctx.fillRect(x,y,1,1);
+  }
+
+  dashedCircle(ctx,cx,cy,R_CORE*scale,  'rgba(245,197,66,0.35)', [5,4],1.0);
+  dashedCircle(ctx,cx,cy,R_GALAXY*scale,'rgba(68,204,136,0.30)', [6,5],0.8);
+  ctx.font='11px sans-serif';
+  ctx.fillStyle='rgba(245,197,66,0.6)';
+  ctx.fillText('Bulge',     cx+R_CORE*scale+6,   cy-5);
+  ctx.fillStyle='rgba(68,204,136,0.55)';
+  ctx.fillText('Disk edge', cx+R_GALAXY*scale+6, cy-5);
+
+  const label    = armSign===-1 ? '⟲ Trailing arms' : '⟳ Leading arms';
+  const labelCol = armSign===-1 ? '#66ee88' : '#ff8844';
+  ctx.font='bold 11px sans-serif'; ctx.fillStyle=labelCol;
+  ctx.textAlign='right'; ctx.fillText(label, W-10, 18); ctx.textAlign='left';
+
+  rotRAF=requestAnimationFrame(drawRotFrame);
+}
+
+function startRotation() {
+  if (rotRAF) cancelAnimationFrame(rotRAF);
+  rotLastMs=null; rotElapsed=0;
+  rotRAF=requestAnimationFrame(drawRotFrame);
+}
+function stopRotation() {
+  if (rotRAF) { cancelAnimationFrame(rotRAF); rotRAF=null; }
+}
+
+// Synced slider groups
+const syncGroups = {
+  tilt:   { ids:['tilt','tilt2','tilt3'],          fmt: v=>v.toFixed(3) },
+  ecc:    { ids:['ecc', 'ecc2', 'ecc3'],           fmt: v=>v.toFixed(2) },
+  stars:  { ids:['nstars','nstars3'],              fmt: v=>Math.round(v).toLocaleString() },
+  nebulae:{ ids:['nneb','nneb3'],                  fmt: v=>Math.round(v).toLocaleString() },
+};
+
+function onSync(groupKey, changedId) {
+  const group=syncGroups[groupKey];
+  const val=parseFloat(document.getElementById(changedId).value);
+  group.ids.forEach(id => {
+    if (id===changedId) return;
+    document.getElementById(id).value=val;
+    document.getElementById(id+'-val').textContent=group.fmt(val);
+  });
+  document.getElementById(changedId+'-val').textContent=group.fmt(val);
+  if (groupKey==='tilt'||groupKey==='ecc') { drawOrbits(); drawStars(); rotParamsKey=''; }
+  else if (groupKey==='stars') { drawStars(); rotParamsKey=''; }
+  else if (groupKey==='nebulae') drawStars();
+}
+Object.entries(syncGroups).forEach(([key,group]) => {
+  group.ids.forEach(id => {
+    document.getElementById(id).addEventListener('input', ()=>onSync(key,id));
+  });
+});
+
+// Non-synced sliders
+document.getElementById('norb').addEventListener('input', () => {
+  document.getElementById('norb-val').textContent=document.getElementById('norb').value;
+  drawOrbits();
+});
+document.getElementById('speed').addEventListener('input', () => {
+  document.getElementById('speed-val').textContent=
+    parseFloat(document.getElementById('speed').value).toFixed(1)+'×';
+});
+
+// Arm buttons
+document.getElementById('btnTrailing').addEventListener('click', () => {
+  armSign=-1; rotParamsKey='';
+  document.getElementById('btnTrailing').classList.add('active');
+  document.getElementById('btnLeading').classList.remove('active');
+  document.getElementById('armDesc').innerHTML=
+    '<b style="color:#44cc88">Trailing arms</b> — arms curve <em>away</em> from the rotation direction. A large majority of observed spiral galaxies have trailing arms. They are stable because the Coriolis force damps any perturbation that would make them lead.';
+  document.getElementById('armDesc').style.background='rgba(0,180,100,0.08)';
+  document.getElementById('armDesc').style.borderColor='#44cc88';
+});
+document.getElementById('btnLeading').addEventListener('click', () => {
+  armSign=+1; rotParamsKey='';
+  document.getElementById('btnLeading').classList.add('active');
+  document.getElementById('btnTrailing').classList.remove('active');
+  document.getElementById('armDesc').innerHTML=
+    '<b style="color:#ff8844">Leading arms</b> — arms curve <em>toward</em> the rotation direction. Observed in only a handful of galaxies. "The density wave theory postulates that only trailing spiral arms are stable, and that any leading structure must at some point transition into a trailing one. Concurrently, the structure itself is amplified for a period following the transformation, which is called swing amplification."';
+  document.getElementById('armDesc').style.background='rgba(200,80,0,0.08)';
+  document.getElementById('armDesc').style.borderColor='#ff8844';
+});
+
+// Tab buttons
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', ()=>switchTab(parseInt(btn.dataset.tab)));
+});
+
+//  INITIAL DRAW
+drawOrbits();
+</script>
+</body>
+</html>

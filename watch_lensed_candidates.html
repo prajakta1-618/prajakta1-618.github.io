@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lensed Transient Candidates</title>
+<style>
+  :root {
+    --accent: #51247a;
+    --accent-light: #e8dff0;
+    --bg: #f9f8fc;
+    --surface: #ffffff;
+    --border: #e0d8ea;
+    --text: #1a1a1a;
+    --muted: #6b6b6b;
+    --radius: 10px;
+    --gap: 20px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--accent);
+    color: #fff;
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  header h1 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  header span {
+    font-size: 0.85rem;
+    opacity: 0.75;
+  }
+
+  #count-badge {
+    margin-left: auto;
+    background: rgba(255,255,255,0.15);
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+
+  main {
+    padding: 2rem;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 5rem 2rem;
+    color: var(--muted);
+  }
+
+  .empty-state p { font-size: 0.95rem; margin-top: 0.5rem; }
+  .empty-state code {
+    font-family: monospace;
+    background: var(--accent-light);
+    color: var(--accent);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+  }
+
+  .candidate-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+
+  .candidate-header {
+    background: var(--accent-light);
+    border-bottom: 1px solid var(--border);
+    padding: 0.6rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .candidate-header .obj-id {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--accent);
+    font-family: monospace;
+    letter-spacing: 0.02em;
+  }
+
+  .candidate-header .obj-index {
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .image-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--gap);
+    padding: var(--gap);
+  }
+
+  @media (max-width: 680px) {
+    .image-row { grid-template-columns: 1fr; }
+    main { padding: 1rem; }
+    header { padding: 1rem; }
+  }
+
+  .image-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .image-panel .label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+
+  .image-panel img {
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    display: block;
+    cursor: zoom-in;
+    transition: box-shadow 0.15s ease;
+    background: #f0ecf5;
+  }
+
+  .image-panel img:hover {
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+
+  .missing-img {
+    width: 100%;
+    aspect-ratio: 4/3;
+    border-radius: 6px;
+    border: 1px dashed var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-size: 0.8rem;
+    background: #fafafa;
+  }
+
+  /* Lightbox */
+  #lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 10, 35, 0.92);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    cursor: zoom-out;
+  }
+
+  #lightbox.open { display: flex; }
+
+  #lightbox img {
+    max-width: 90vw;
+    max-height: 90vh;
+    width: auto;
+    height: auto;
+    border-radius: 8px;
+    display: block;
+    cursor: default;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  }
+
+  #lightbox-close {
+    position: fixed;
+    top: 1.2rem;
+    right: 1.5rem;
+    color: rgba(255,255,255,0.8);
+    font-size: 2rem;
+    cursor: pointer;
+    line-height: 1;
+    background: none;
+    border: none;
+    padding: 0;
+  }
+
+  #lightbox-caption {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255,255,255,0.6);
+    font-size: 0.8rem;
+    font-family: monospace;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Lensed Transient Candidates</h1>
+  <span>candidate_cutouts_lcs/</span>
+  <div id="count-badge">— candidates</div>
+</header>
+
+<main id="gallery">
+  <div class="empty-state" id="empty-msg">
+    <strong>No images loaded</strong>
+    <p>Open this file via a local server or add image paths to <code>CANDIDATES</code> in the script below.</p>
+  </div>
+</main>
+
+<!-- Lightbox -->
+<div id="lightbox" role="dialog" aria-modal="true" aria-label="Expanded image">
+  <button id="lightbox-close" aria-label="Close">&times;</button>
+  <img id="lightbox-img" src="" alt="" />
+  <div id="lightbox-caption"></div>
+</div>
+
+<script>
+/*
+  HOW TO USE
+  ----------
+  Option A — local server (recommended for GitHub Pages):
+    Run:  python3 -m http.server 8000
+    Then open http://localhost:8000/gallery.html
+    The script will auto-scan candidate_cutouts_lcs/ for PNG pairs.
+
+  Option B — hardcode your list:
+    Fill the CANDIDATES array below with your object IDs.
+    Each object needs two files in candidate_cutouts_lcs/:
+      <objectid>_lc.png      (light curve)
+      <objectid>_cutout.png  (cutout)
+    Adjust LC_SUFFIX and CUTOUT_SUFFIX if your naming differs.
+
+  Naming convention assumed (edit if yours differs):
+    LC:     candidate_cutouts_lcs/{objectid}_lc.png
+    Cutout: candidate_cutouts_lcs/{objectid}_cutout.png
+*/
+
+const FOLDER = "candidate_cutouts_lcs";
+const LC_SUFFIX = "_lc.png";
+const CUTOUT_SUFFIX = "_cutout.png";
+
+// --- Option B: hardcode object IDs here (leave empty to use auto-detect) ---
+const CANDIDATES = [
+  // "objectid_001",
+  // "objectid_002",
+];
+
+// --- Auto-detect via directory listing (works when served over HTTP) ---
+async function fetchObjectIDs() {
+  if (CANDIDATES.length > 0) return CANDIDATES;
+  try {
+    const res = await fetch(FOLDER + "/");
+    if (!res.ok) throw new Error("no listing");
+    const html = await res.text();
+    const matches = [...html.matchAll(/href="([^"]+\.png)"/gi)].map(m => m[1]);
+    const ids = new Set();
+    for (const f of matches) {
+      const name = f.replace(/.*\//, "");
+      if (name.endsWith(LC_SUFFIX)) ids.add(name.slice(0, -LC_SUFFIX.length));
+      else if (name.endsWith(CUTOUT_SUFFIX)) ids.add(name.slice(0, -CUTOUT_SUFFIX.length));
+    }
+    return [...ids].sort();
+  } catch {
+    return [];
+  }
+}
+
+function imgPath(id, suffix) {
+  return FOLDER + "/" + id + suffix;
+}
+
+function makePanel(id, suffix, label) {
+  const panel = document.createElement("div");
+  panel.className = "image-panel";
+  const lbl = document.createElement("div");
+  lbl.className = "label";
+  lbl.textContent = label;
+  panel.appendChild(lbl);
+
+  const img = new Image();
+  img.loading = "lazy";
+  img.decoding = "async";
+  img.alt = label + " — " + id;
+  img.src = imgPath(id, suffix);
+  img.addEventListener("click", () => openLightbox(img.src, id + "  ·  " + label));
+  img.addEventListener("error", () => {
+    img.replaceWith(Object.assign(document.createElement("div"), {
+      className: "missing-img",
+      textContent: "not found"
+    }));
+  });
+  panel.appendChild(img);
+  return panel;
+}
+
+function makeBlock(id, index) {
+  const block = document.createElement("div");
+  block.className = "candidate-block";
+
+  const hdr = document.createElement("div");
+  hdr.className = "candidate-header";
+  hdr.innerHTML = `<span class="obj-id">${id}</span><span class="obj-index">#${index + 1}</span>`;
+  block.appendChild(hdr);
+
+  const row = document.createElement("div");
+  row.className = "image-row";
+  row.appendChild(makePanel(id, LC_SUFFIX, "Light curve"));
+  row.appendChild(makePanel(id, CUTOUT_SUFFIX, "Cutout"));
+  block.appendChild(row);
+
+  return block;
+}
+
+async function init() {
+  const gallery = document.getElementById("gallery");
+  const badge = document.getElementById("count-badge");
+  const emptyMsg = document.getElementById("empty-msg");
+
+  const ids = await fetchObjectIDs();
+
+  if (ids.length === 0) {
+    badge.textContent = "0 candidates";
+    return;
+  }
+
+  emptyMsg.remove();
+  badge.textContent = ids.length + " candidate" + (ids.length === 1 ? "" : "s");
+
+  const frag = document.createDocumentFragment();
+  ids.forEach((id, i) => frag.appendChild(makeBlock(id, i)));
+  gallery.appendChild(frag);
+}
+
+// Lightbox
+const lb = document.getElementById("lightbox");
+const lbImg = document.getElementById("lightbox-img");
+const lbCap = document.getElementById("lightbox-caption");
+
+function openLightbox(src, caption) {
+  lbImg.src = src;
+  lbCap.textContent = caption;
+  lb.classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function closeLightbox() {
+  lb.classList.remove("open");
+  lbImg.src = "";
+  document.body.style.overflow = "";
+}
+
+lb.addEventListener("click", e => { if (e.target === lb) closeLightbox(); });
+document.getElementById("lightbox-close").addEventListener("click", closeLightbox);
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeLightbox(); });
+lbImg.addEventListener("click", e => e.stopPropagation());
+
+init();
+</script>
+</body>
+</html>

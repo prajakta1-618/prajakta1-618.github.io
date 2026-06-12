@@ -271,19 +271,24 @@ const CANDIDATES = [
 async function fetchObjectIDs() {
   if (CANDIDATES.length > 0) return CANDIDATES;
   try {
-    const res = await fetch(FOLDER + "/");
-    if (!res.ok) throw new Error("no listing");
-    const html = await res.text();
-    const matches = [...html.matchAll(/href="([^"]+\.png)"/gi)].map(m => m[1]);
-    const ids = new Set();
-    for (const f of matches) {
-      const name = f.replace(/.*\//, "");
-      if (name.endsWith(LC_SUFFIX)) ids.add(name.slice(0, -LC_SUFFIX.length));
-      else if (name.endsWith(CUTOUT_SUFFIX)) ids.add(name.slice(0, -CUTOUT_SUFFIX.length));
-    }
-    return [...ids].sort();
+    const res = await fetch(FOLDER + "/manifest.json");
+    if (!res.ok) throw new Error("no manifest");
+    return await res.json();
   } catch {
-    return [];
+    // fallback: try directory listing (works on localhost)
+    try {
+      const res = await fetch(FOLDER + "/");
+      if (!res.ok) throw new Error("no listing");
+      const html = await res.text();
+      const matches = [...html.matchAll(/href="([^"]+\.png)"/gi)].map(m => m[1]);
+      const ids = new Set();
+      for (const f of matches) {
+        const name = f.replace(/.*\//, "");
+        if (name.endsWith(LC_SUFFIX)) ids.add(name.slice(0, -LC_SUFFIX.length));
+        else if (name.endsWith(CUTOUT_SUFFIX)) ids.add(name.slice(0, -CUTOUT_SUFFIX.length));
+      }
+      return [...ids].sort();
+    } catch { return []; }
   }
 }
 

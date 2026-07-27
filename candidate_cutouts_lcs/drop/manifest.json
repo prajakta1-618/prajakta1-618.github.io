@@ -1,0 +1,137 @@
+[
+  {
+    "id": "170019716560584837",
+    "group": "both",
+    "sherlock": "VS",
+    "has_cmd": false,
+    "cutouts": [
+      {
+        "file": "170019716560584837_cutout_1.png",
+        "mjd": 61097.26457,
+        "label": "early"
+      },
+      {
+        "file": "170019716560584837_cutout_2.png",
+        "mjd": 61162.0796,
+        "label": "late"
+      },
+      {
+        "file": "170019716560584837_cutout_3.png",
+        "mjd": 61179.99964,
+        "label": "brightest"
+      },
+      {
+        "file": "170019716560584837_cutout_4.png",
+        "mjd": 61204.97391,
+        "label": "recent"
+      }
+    ]
+  },
+  {
+    "id": "170019716881973333",
+    "group": "both",
+    "sherlock": "VS",
+    "has_cmd": true,
+    "cutouts": [
+      {
+        "file": "170019716881973333_cutout_1.png",
+        "mjd": 61135.04332,
+        "label": "early"
+      },
+      {
+        "file": "170019716881973333_cutout_2.png",
+        "mjd": 61138.07921,
+        "label": "brightest"
+      },
+      {
+        "file": "170019716881973333_cutout_3.png",
+        "mjd": 61160.07253,
+        "label": "late"
+      },
+      {
+        "file": "170019716881973333_cutout_4.png",
+        "mjd": 61179.99916,
+        "label": "recent"
+      }
+    ]
+  },
+  {
+    "id": "170019717002559567",
+    "group": "both",
+    "sherlock": "VS",
+    "has_cmd": true,
+    "cutouts": [
+      {
+        "file": "170019717002559567_cutout_1.png",
+        "mjd": 61091.19842,
+        "label": "brightest"
+      },
+      {
+        "file": "170019717002559567_cutout_2.png",
+        "mjd": 61095.16303,
+        "label": "early"
+      },
+      {
+        "file": "170019717002559567_cutout_3.png",
+        "mjd": 61191.98024,
+        "label": "late+recent"
+      }
+    ]
+  },
+  {
+    "id": "170028485647532051",
+    "group": "both",
+    "sherlock": "VS",
+    "has_cmd": true,
+    "cutouts": [
+      {
+        "file": "170028485647532051_cutout_1.png",
+        "mjd": 61095.05628,
+        "label": "brightest"
+      },
+      {
+        "file": "170028485647532051_cutout_2.png",
+        "mjd": 61098.07907,
+        "label": "early"
+      },
+      {
+        "file": "170028485647532051_cutout_3.png",
+        "mjd": 61217.41743,
+        "label": "late"
+      },
+      {
+        "file": "170028485647532051_cutout_4.png",
+        "mjd": 61230.42161,
+        "label": "recent"
+      }
+    ]
+  },
+  {
+    "id": "170028485808488466",
+    "group": "both",
+    "sherlock": "HPMS",
+    "has_cmd": true,
+    "cutouts": [
+      {
+        "file": "170028485808488466_cutout_1.png",
+        "mjd": 61090.0852,
+        "label": "brightest"
+      },
+      {
+        "file": "170028485808488466_cutout_2.png",
+        "mjd": 61102.11949,
+        "label": "early"
+      },
+      {
+        "file": "170028485808488466_cutout_3.png",
+        "mjd": 61217.42271,
+        "label": "late"
+      },
+      {
+        "file": "170028485808488466_cutout_4.png",
+        "mjd": 61235.41781,
+        "label": "recent"
+      }
+    ]
+  }
+]
